@@ -228,21 +228,30 @@ void Owner_loggedin(const std::string& username) {
                 break;
             }
             case 2: {
-                std::string carIdStr;
-                cout << "Enter Car ID to remove: "; cin >> carIdStr;
-                int carId = stoi(carIdStr);
-                owner->removeCar(carIdStr);
-                cars.erase(carId);
+                auto carList = owner->getCarList();
+                if (carList.empty()) {
+                    cout << "No cars to remove.\n";
+                } else {
+                    std::string carIdStr;
+                    cout << "Enter Car ID to remove: "; cin >> carIdStr;
+                    int carId = stoi(carIdStr);
+                    owner->removeCar(carIdStr);
+                    cars.erase(carId);
 
-                cout << "Car removed successfully.\n";
+                    cout << "Car removed successfully.\n";
+                }
                 break;
             }
             case 3: {
                 auto carList = owner->getCarList();
-                cout << "Listed cars:\n";
-                for (const auto& carIdStr : carList) {
-                    int carId = stoi(carIdStr);
-                    cars[carId].displayInfo();
+                if (carList.empty()) {
+                    cout << "No cars listed.\n";
+                } else {
+                    cout << "Listed cars:\n";
+                    for (const auto& carIdStr : carList) {
+                        int carId = stoi(carIdStr);
+                        cars[carId].displayInfo();
+                    }
                 }
                 break;
             }
@@ -277,20 +286,26 @@ void Lessee_loggedin(const std::string& username) {
         system("cls");
         switch (choice) {
             case 1: {
+                bool carsAvailable = false;
                 cout << "Available cars:\n";
                 for (const auto& pair : cars) {
                     const Car& car = pair.second;
                     if (car.getAvailability()) {
                         car.displayInfo();
+                        carsAvailable = true;
                     }
+                }
+                if (!carsAvailable) {
+                    cout << "No cars available.\n";
                 }
                 break;
             }
             case 2: {
                 int carId;
                 cout << "Enter Car ID to rent: "; cin >> carId;
-                cout << "Enter number of days to rent: "; cin >> days;
                 if (cars.find(carId) != cars.end() && cars[carId].getAvailability()) {
+                    cout << "Enter number of days to rent: "; 
+                    cin >> days;
                     cars[carId].setAvailability(false);
                     lessee->rentCar(carId);
                     cars[carId].setRentedBy(username);  // Set the lessee's username as the renter
@@ -311,9 +326,11 @@ void Lessee_loggedin(const std::string& username) {
                         cars[carId].setAvailability(true);
                         lessee->returnCar(carId);
                         cout << "Car returned successfully.\n";
-                        
+
+                        // Retrieve the owner username for the car being returned
                         std::string ownerUsername = cars[carId].getOwnerUsername();
 
+                        // Calculate total amount based on rental days (assuming 1 day rental here)
                         double totalAmount = days*cars[carId].getPricePerDay();
                         Payment::makePayment(ownerUsername, username, totalAmount);
                         cout << "Payment made successfully.\n";
@@ -329,9 +346,13 @@ void Lessee_loggedin(const std::string& username) {
             }
             case 4: {
                 auto rentedCars = lessee->getRentedCars();
-                cout << "Rented cars:\n";
-                for (int carId : rentedCars) {
-                    cars[carId].displayInfo();
+                if (rentedCars.empty()) {
+                    cout << "No cars rented.\n";
+                } else {
+                    cout << "Rented cars:\n";
+                    for (int carId : rentedCars) {
+                        cars[carId].displayInfo();
+                    }
                 }
                 break;
             }
