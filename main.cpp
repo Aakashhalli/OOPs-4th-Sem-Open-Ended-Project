@@ -96,10 +96,12 @@ class Car {
     double pricePerDay;
     bool isAvailable;
     std::string rentedBy;
+    std::string ownerUsername;  // Add this to track the owner's username
+
 public: 
     Car() : carId(generateUid()), year(0), pricePerDay(0.0), isAvailable(true), rentedBy("") {}
-    Car(std::string name, std::string make, int year, double pricePerDay)
-        : name(name), make(make), year(year), carId(generateUid()), pricePerDay(pricePerDay), isAvailable(true), rentedBy("") {}
+    Car(std::string name, std::string make, int year, double pricePerDay, std::string ownerUsername)
+        : name(name), make(make), year(year), carId(generateUid()), pricePerDay(pricePerDay), isAvailable(true), rentedBy(""), ownerUsername(ownerUsername) {}
 
     void displayInfo() const {
         cout << "CarID: " << carId << ", Name: " << name << ", Make: " << make << ", Year: " << year 
@@ -129,12 +131,16 @@ public:
     std::string getRentedBy() const {
         return rentedBy;
     }
+
+    std::string getOwnerUsername() const {
+        return ownerUsername;
+    }
 };
 
 class Payment {
 public:
-    static void makePayment(int ownerId, int lesseeId, double amount) {
-        cout << "Payment of $" << amount << " from Lessee ID " << lesseeId << " to Owner ID " << ownerId << " completed." << endl;
+    static void makePayment(const std::string& ownerUsername, const std::string& lesseeUsername, double amount) {
+        cout << "Payment of $" << amount << " from Lessee " << lesseeUsername << " to Owner " << ownerUsername << " completed." << endl;
     }
 
     static void generateReceipt(int lesseeId, int carId, double amount, const std::string& ownerName, const std::string& lesseeName, const std::string& license) {
@@ -150,10 +156,10 @@ void writeUserDetailsToFile(const std::string& filename, const Person& person) {
     ofstream fout(filename, ios::app);
     if (fout.is_open()) {
         fout << person.getUsername() << "\t"
-         << person.getName() << "\t"
-         << person.getAge() << "\t"
-         << person.getPhoneNo() << "\t"
-         << person.getEmail() << "\n";
+             << person.getName() << "\t"
+             << person.getAge() << "\t"
+             << person.getPhoneNo() << "\t"
+             << person.getEmail() << "\n";
     }
     fout.close();
 }
@@ -204,7 +210,7 @@ void Owner_loggedin(const std::string& username) {
         system("cls");
         switch (choice) {
             case 1: {
-                std::string name, make;
+                string name, make;
                 int year;
                 double pricePerDay;
 
@@ -214,7 +220,7 @@ void Owner_loggedin(const std::string& username) {
                 cout << "Year: "; cin >> year;
                 cout << "Price per day: "; cin >> pricePerDay;
 
-                Car car(name, make, year, pricePerDay);
+                Car car(name, make, year, pricePerDay, username);
                 cars[car.getCarId()] = car;
                 owner->addCar(to_string(car.getCarId()));
 
@@ -243,6 +249,7 @@ void Owner_loggedin(const std::string& username) {
         }
     } while (choice != 4);
 }
+
 void Lessee_loggedin(const std::string& username) {
     auto& lessee = lessees[username];
     if (lessee->isDetailsEmpty()) {
@@ -264,8 +271,9 @@ void Lessee_loggedin(const std::string& username) {
 
     int choice;
     do {
-        cout << "1. View available cars\n2. Rent a car\n3. Return a car\n4. View rented cars\n5. Make Payment\n6. Logout\n";
+        cout << "1. View available cars\n2. Rent a car\n3. Return a car\n4. View rented cars\n5. Logout\n";
         cin >> choice;
+        int days;
         system("cls");
         switch (choice) {
             case 1: {
@@ -281,10 +289,13 @@ void Lessee_loggedin(const std::string& username) {
             case 2: {
                 int carId;
                 cout << "Enter Car ID to rent: "; cin >> carId;
+                cout << "Enter number of days to rent: "; cin >> days;
                 if (cars.find(carId) != cars.end() && cars[carId].getAvailability()) {
                     cars[carId].setAvailability(false);
                     lessee->rentCar(carId);
-                    cout << "Car rented successfully.\n";
+                    cars[carId].setRentedBy(username);  // Set the lessee's username as the renter
+                    double totalAmount = cars[carId].getPricePerDay() * days;
+                    cout << "Car rented successfully for " << days << " days. Total amount: $" << totalAmount << "\n";
                 } else {
                     cout << "Car ID not found or already rented.\n";
                 }
@@ -294,27 +305,20 @@ void Lessee_loggedin(const std::string& username) {
                 string carIdStr;
                 cout << "Enter Car ID to return: ";
                 cin >> carIdStr;
-                double totalAmount = 0.0;
-                auto rentedCars = lessee->getRentedCars();
-                for (int carId : rentedCars) {
-                    totalAmount += cars[carId].getPricePerDay();
-                }
                 try {
                     int carId = stoi(carIdStr);
-                    if (cars.find(carId) != cars.end() && !cars[carId].getAvailability()) {
+                    if (cars.find(carId) != cars.end() && !cars[carId].getAvailability() && cars[carId].getRentedBy() == username) {
                         cars[carId].setAvailability(true);
                         lessee->returnCar(carId);
                         cout << "Car returned successfully.\n";
+                        
+                        std::string ownerUsername = cars[carId].getOwnerUsername();
 
-                        // Retrieve the owner ID for the car being returned
-                        std::string ownerUsername = cars[carId].getRentedBy();
-                        int ownerId = std::stoi(ownerUsername);
-
-                        // Make the payment with the correct owner ID
-                        Payment::makePayment(ownerId, stoi(username), totalAmount);
+                        double totalAmount = days*cars[carId].getPricePerDay();
+                        Payment::makePayment(ownerUsername, username, totalAmount);
                         cout << "Payment made successfully.\n";
                     } else {
-                        cout << "Car ID not found or not rented.\n";
+                        cout << "Car ID not found, not rented, or not rented by you.\n";
                     }
                 } catch (const std::invalid_argument& e) {
                     cout << "Invalid input for Car ID. Please enter a valid integer.\n";
@@ -323,7 +327,6 @@ void Lessee_loggedin(const std::string& username) {
                 }
                 break;
             }
-
             case 4: {
                 auto rentedCars = lessee->getRentedCars();
                 cout << "Rented cars:\n";
@@ -333,9 +336,8 @@ void Lessee_loggedin(const std::string& username) {
                 break;
             }
         }
-    } while (choice != 6);
+    } while (choice != 5);
 }
-
 
 bool check_credentials(const string& filename, const string& username, const string& password) {
     ifstream fin(filename);
@@ -382,7 +384,7 @@ void Login() {
             }
         }
         break;
-           case 2: {
+        case 2: {
             if (check_credentials("Lessee_credentials.txt", username, password)) {
                 if (lessees.find(username) == lessees.end()) {
                     lessees[username] = make_unique<Lessee>();
