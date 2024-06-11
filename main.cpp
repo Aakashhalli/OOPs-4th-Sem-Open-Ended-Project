@@ -96,7 +96,7 @@ class Car {
     double pricePerDay;
     bool isAvailable;
     std::string rentedBy;
-    std::string ownerUsername;  // Add this to track the owner's username
+    std::string ownerUsername;
 
 public: 
     Car() : carId(generateUid()), year(0), pricePerDay(0.0), isAvailable(true), rentedBy("") {}
@@ -104,8 +104,14 @@ public:
         : name(name), make(make), year(year), carId(generateUid()), pricePerDay(pricePerDay), isAvailable(true), rentedBy(""), ownerUsername(ownerUsername) {}
 
     void displayInfo() const {
-        cout << "CarID: " << carId << ", Name: " << name << ", Make: " << make << ", Year: " << year 
-             << ", Price per day: $" << pricePerDay << ", Available: " << (isAvailable ? "Yes" : "No") << endl;
+        cout<<" +---------------------------------+"<<endl;
+        cout<<" |  CarID: "<<carId<<"                       |"<<endl;
+        cout<<" |  Name : "<<name<<"                      |"<<endl;
+        cout<<" |  Make : "<<make<<"                    |"<<endl;
+        cout<<" |  Year : "<<year<<"                    |"<<endl;
+        cout<<" |  Price per day: $"<<pricePerDay<<"           |"<<endl;
+        cout<<" |  Available : "<<(isAvailable ? "Yes" : "No ")<<"                |"<<endl;
+        cout<<" +---------------------------------+"<<endl;
     }
 
     int getCarId() const {
@@ -192,13 +198,19 @@ void Owner_loggedin(const std::string& username) {
         std::string name, email;
         int age;
         long int phone_no;
-
-        cout << "Enter your details:\n";
-        cout << "Name: "; cin >> name;
-        cout << "Age: "; cin >> age;
-        cout << "Phone Number: "; cin >> phone_no;
-        cout << "Email: "; cin >> email;
-
+        cout<<"+---------------------------------------+"<<endl;
+        cout<<"|    You'r logging-in for first time    |"<<endl;
+        cout<<"+---------------------------------------+"<<endl;
+        cout<<"        -:  Enter your details  :-\n\n";
+        cout<<"Name: "; cin >> name;
+        cout<<"Age: "; cin >> age;
+        cout<<"Phone Number: "; cin >> phone_no;
+        cout<<"Email: "; cin >> email;
+        Sleep(1000);
+        system("cls");
+        cout<<"Please wait while we setup your account"<<endl;
+        Loading();
+        Sleep(2000);
         owner->setDetails(username, name, age, phone_no, email);
         writeUserDetailsToFile("Owners.txt", *owner);
     }
@@ -213,17 +225,19 @@ void Owner_loggedin(const std::string& username) {
                 string name, make;
                 int year;
                 double pricePerDay;
-
-                cout << "Enter car details:\n";
-                cout << "Name: "; cin >> name;
-                cout << "Make: "; cin >> make;
-                cout << "Year: "; cin >> year;
-                cout << "Price per day: "; cin >> pricePerDay;
+                cout<<"+---------------------------------------+"<<endl;
+                cout<<"|             Car Details               |"<<endl;
+                cout<<"+---------------------------------------+"<<endl;
+                cout<<"         -: Enter car details  :-\n";
+                cout<<"Name: "; cin >> name;
+                cout<<"Make: "; cin >> make;
+                cout<<"Year: "; cin >> year;
+                cout<<"Price per day: "; cin >> pricePerDay;
 
                 Car car(name, make, year, pricePerDay, username);
                 cars[car.getCarId()] = car;
                 owner->addCar(to_string(car.getCarId()));
-
+                Loading();
                 cout << "Car listed successfully.\n";
                 break;
             }
@@ -266,13 +280,20 @@ void Lessee_loggedin(const std::string& username) {
         int age;
         long int phone_no;
 
-        cout << "Enter your details:\n";
+        cout<<"+---------------------------------------+"<<endl;
+        cout<<"|    You'r logging-in for first time    |"<<endl;
+        cout<<"+---------------------------------------+"<<endl;
+        cout<<"        -:  Enter your details  :-\n\n";
         cout << "Name: "; cin >> name;
         cout << "Age: "; cin >> age;
         cout << "Phone Number: "; cin >> phone_no;
         cout << "Email: "; cin >> email;
         cout << "License: "; cin >> license;
-
+        Sleep(1000);
+        system("cls");
+        cout<<"Please wait while we setup your account"<<endl;
+        Loading();
+        Sleep(2000);
         lessee->setDetails(username, name, age, phone_no, email);
         lessee->setLicense(license);
         writeUserDetailsToFile("Lessees.txt", *lessee);
@@ -280,8 +301,8 @@ void Lessee_loggedin(const std::string& username) {
 
     int choice;
     do {
-        cout << "1. View available cars\n2. Rent a car\n3. Return a car\n4. View rented cars\n5. Logout\n";
-        cin >> choice;
+        cout<<"1. View available cars\n2. Rent a car\n3. Return a car\n4. View rented cars\n5. Logout\n";
+        cin>>choice;
         int days;
         system("cls");
         switch (choice) {
@@ -296,7 +317,7 @@ void Lessee_loggedin(const std::string& username) {
                     }
                 }
                 if (!carsAvailable) {
-                    cout << "No cars available.\n";
+                    cout<<endl<<"No cars available.\n\n";
                 }
                 break;
             }
@@ -306,13 +327,14 @@ void Lessee_loggedin(const std::string& username) {
                 if (cars.find(carId) != cars.end() && cars[carId].getAvailability()) {
                     cout << "Enter number of days to rent: "; 
                     cin >> days;
+                    Loading();
                     cars[carId].setAvailability(false);
                     lessee->rentCar(carId);
                     cars[carId].setRentedBy(username);  // Set the lessee's username as the renter
                     double totalAmount = cars[carId].getPricePerDay() * days;
-                    cout << "Car rented successfully for " << days << " days. Total amount: $" << totalAmount << "\n";
+                    cout << "Car rented successfully for " << days << " days. Total amount: $" << totalAmount << "\n\n";
                 } else {
-                    cout << "Car ID not found or already rented.\n";
+                    cout<<endl<<"Car ID not found or already rented.\n\n";
                 }
                 break;
             }
@@ -325,17 +347,16 @@ void Lessee_loggedin(const std::string& username) {
                     if (cars.find(carId) != cars.end() && !cars[carId].getAvailability() && cars[carId].getRentedBy() == username) {
                         cars[carId].setAvailability(true);
                         lessee->returnCar(carId);
-                        cout << "Car returned successfully.\n";
+                        cout<<endl<<"Car returned successfully.\n";
 
-                        // Retrieve the owner username for the car being returned
                         std::string ownerUsername = cars[carId].getOwnerUsername();
 
-                        // Calculate total amount based on rental days (assuming 1 day rental here)
                         double totalAmount = days*cars[carId].getPricePerDay();
                         Payment::makePayment(ownerUsername, username, totalAmount);
-                        cout << "Payment made successfully.\n";
+                        Loading();
+                        cout<<"Payment made successfully.\n\n";
                     } else {
-                        cout << "Car ID not found, not rented, or not rented by you.\n";
+                        cout <<endl<<"Car ID not found, not rented, or not rented by you.\n\n";
                     }
                 } catch (const std::invalid_argument& e) {
                     cout << "Invalid input for Car ID. Please enter a valid integer.\n";
@@ -347,7 +368,7 @@ void Lessee_loggedin(const std::string& username) {
             case 4: {
                 auto rentedCars = lessee->getRentedCars();
                 if (rentedCars.empty()) {
-                    cout << "No cars rented.\n";
+                    cout<<endl<<"No cars rented.\n\n";
                 } else {
                     cout << "Rented cars:\n";
                     for (int carId : rentedCars) {
@@ -394,7 +415,7 @@ void Login() {
                 if (!readUserDetailsFromFile("Owners.txt", username, *owners[username])) {
                     // New owner, will enter details later
                 }
-                logged_in();
+                logged_in(username);
                 Owner_loggedin(username);
             } else {
                 cout << "Not registered or incorrect credentials.\n";
@@ -413,7 +434,7 @@ void Login() {
                 if (!readUserDetailsFromFile("Lessees.txt", username, *lessees[username])) {
                     // New lessee, will enter details later
                 }
-                logged_in();
+                logged_in(username);
                 Lessee_loggedin(username);
             } else {
                 cout << "Not registered or incorrect credentials.\n";
@@ -429,11 +450,29 @@ void Login() {
 
 void Signup() {
     int choice;
-    string username, password;
+    string username, password, fuser;
     signup_page();
-    cin >> choice;
+    cin>>choice;
+
     cout << "Create Username : ";
-    cin >> username;
+    while (true) {
+        cin>>username;
+        bool usernameExists = false;
+
+        ifstream fowner("Owner_credentials.txt");
+        while (getline(fowner, fuser, '\t')) {
+            if (username == fuser) {
+                usernameExists = true;
+                break;
+            }
+        }
+        if (usernameExists) {
+            cout<<"Username already exists, Try different" << endl;
+            cout<<"Create Username : ";
+        } else {
+            break;
+        }
+    }
     cout << "Password : ";
     cin >> password;
     switch (choice) {
@@ -457,14 +496,17 @@ void Signup() {
 void LoginOrSignup() {
     int loschoice;
     do {
+        title();
         LOS();
         cin >> loschoice;
         system("cls");
         switch(loschoice) {
             case 1: 
+                title();
                 Signup();
                 break;
             case 2: 
+                title();
                 Login();
                 break;
         }
