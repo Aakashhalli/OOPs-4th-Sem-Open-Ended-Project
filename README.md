@@ -1,4 +1,4 @@
-# Belagavi Car Rental System
+Belagavi Car Rental System
 
 
 1.1	Problem Statement
@@ -58,7 +58,7 @@
 ![image](https://github.com/user-attachments/assets/991cba42-9054-4c9e-a8ce-de4d653d4ff2)
 
 
-2.2 Class Description
+2.2 Class Description <br />
     1. Person:
         A base class that holds common attributes for users, including name, email, username, age, and phone number. It provides methods to get and set these details, 
         and check if they are empty. <br />
