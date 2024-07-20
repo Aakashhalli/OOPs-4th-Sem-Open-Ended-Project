@@ -54,22 +54,23 @@
 
 
 2.1	Class Diagram
+<br>
 ![image](https://github.com/user-attachments/assets/991cba42-9054-4c9e-a8ce-de4d653d4ff2)
 
 
 2.2 Class Description
-    Person:
+    1. Person:
         A base class that holds common attributes for users, including name, email, username, age, and phone number. It provides methods to get and set these details, 
-        and check if they are empty.
-    Owner:
+        and check if they are empty. <br />
+    2. Owner:
         Inherits from Person. Represents a car owner, with additional functionality to manage a list of cars they have listed for rent. It includes methods to add, remove,
-        and retrieve listed cars.
-    Lessee:
+        and retrieve listed cars. <br />
+    3. Lessee:
         Inherits from Person. Represents a lessee who rents cars. It includes additional attributes like a driving license and a list of rented car IDs. Methods are provided
-        to manage these rented cars and the lessee's license.
-    Car:
+        to manage these rented cars and the lessee's license. <br />
+    4. Car:
         Represents a car available for rent. It includes attributes such as name, make, year, price per day, availability status, and the username of the person renting it. 
-        Methods include displaying car information, checking availability, and setting rental status.
-    Payment:
+        Methods include displaying car information, checking availability, and setting rental status. <br />
+    5. Payment:
         A utility class that handles payment transactions between lessees and owners. It includes static methods to make payments and generate receipts for completed 
-        transactions.
+        transactions. <br />
