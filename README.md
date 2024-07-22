@@ -1,4 +1,4 @@
-Belagavi Car Rental System
+# Belagavi Car Rental System
 
 
 1.1	Problem Statement
@@ -14,7 +14,7 @@ Belagavi Car Rental System
        - Password-based authentication for user accounts.
     
     2. Owner Management:
-    - Owners can list cars for rent with detailed information including name, make, year, and price per day.
+       - Owners can list cars for rent with detailed information including name, make, year, and price per day.
        - Owners can view and manage their listed cars.
        - Option to remove cars from the listing.
        - Display message when no cars are listed or available for removal.
@@ -57,20 +57,21 @@ Belagavi Car Rental System
 <br>
 ![image](https://github.com/user-attachments/assets/991cba42-9054-4c9e-a8ce-de4d653d4ff2)
 
-
-2.2 Class Description <br />
+<pre>
+2.2 Class Description 
     1. Person:
         A base class that holds common attributes for users, including name, email, username, age, and phone number. It provides methods to get and set these details, 
-        and check if they are empty. <br />
+        and check if they are empty.
     2. Owner:
         Inherits from Person. Represents a car owner, with additional functionality to manage a list of cars they have listed for rent. It includes methods to add, remove,
-        and retrieve listed cars. <br />
+        and retrieve listed cars.
     3. Lessee:
         Inherits from Person. Represents a lessee who rents cars. It includes additional attributes like a driving license and a list of rented car IDs. Methods are provided
-        to manage these rented cars and the lessee's license. <br />
+        to manage these rented cars and the lessee's license.
     4. Car:
         Represents a car available for rent. It includes attributes such as name, make, year, price per day, availability status, and the username of the person renting it. 
-        Methods include displaying car information, checking availability, and setting rental status. <br />
+        Methods include displaying car information, checking availability, and setting rental status.
     5. Payment:
         A utility class that handles payment transactions between lessees and owners. It includes static methods to make payments and generate receipts for completed 
-        transactions. <br />
+        transactions.
+</pre>
